@@ -1,0 +1,302 @@
+[
+  {
+      "id": "79f6f23a.4d4f2c",
+      "type": "tab",
+      "label": "Sampling Example",
+      "disabled": false,
+      "info": ""
+  },
+  {
+      "id": "68c7511d.15c8d",
+      "type": "amqp-server",
+      "host": "rabbitmq",
+      "port": "5672",
+      "vhost": "/",
+      "keepalive": "30",
+      "usetls": false,
+      "verifyservercert": true,
+      "useca": false,
+      "ca": "",
+      "usetopology": false,
+      "topology": "{\n\t\"exchanges\": [\n\t\t{\"name\": \"exchange1\", \"type\": \"direct\", \"options\": {\"durable\": false}},\n\t\t{\"name\": \"exchange2\"}\n\t],\n\t\"queues\": [\n\t\t{\"name\": \"queue1\", \"options\": {\"messageTtl\": 60000}},\n\t\t{\"name\": \"queue2\"}\n\t],\n\t\"bindings\": [\n\t\t{\"source\": \"exchange1\", \"queue\": \"queue1\", \"pattern\": \"debug\", \"args\": {}},\n\t\t{\"source\": \"exchange1\", \"exchange\": \"exchange2\", \"pattern\": \"error\"},\n\t\t{\"source\": \"exchange2\", \"queue\": \"queue2\"}\n\t]\n}",
+      "prefetch": false,
+      "prefetchvalue": "1",
+      "prefetchack": false,
+      "prefetchvalueack": "10"
+  },
+  {
+      "id": "dfd91bb9.1d0b38",
+      "type": "http in",
+      "z": "79f6f23a.4d4f2c",
+      "name": "Sampling",
+      "url": "/sampling",
+      "method": "post",
+      "upload": false,
+      "swaggerDoc": "",
+      "x": 190,
+      "y": 220,
+      "wires": [
+          [
+              "3471e070.070d2",
+              "e07e16d1.b50f08"
+          ]
+      ]
+  },
+  {
+      "id": "76e7e94f.81de88",
+      "type": "http response",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "statusCode": "",
+      "headers": {},
+      "x": 590,
+      "y": 300,
+      "wires": []
+  },
+  {
+      "id": "bca6434b.24d64",
+      "type": "debug",
+      "z": "79f6f23a.4d4f2c",
+      "name": "To Broker",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "true",
+      "targetType": "full",
+      "x": 1120,
+      "y": 160,
+      "wires": []
+  },
+  {
+      "id": "3471e070.070d2",
+      "type": "change",
+      "z": "79f6f23a.4d4f2c",
+      "name": "Collect Data",
+      "rules": [
+          {
+              "t": "set",
+              "p": "timestamp",
+              "pt": "msg",
+              "to": "payload.measurements[0].time",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "device",
+              "pt": "msg",
+              "to": "payload.asset.assetID",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "source",
+              "pt": "msg",
+              "to": "payload.asset.source",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "sampleIDArray",
+              "pt": "msg",
+              "to": "payload.measurements[0].series.sampleID",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "frequencyArray",
+              "pt": "msg",
+              "to": "payload.measurements[0].series.frequency",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "amplitudeArray",
+              "pt": "msg",
+              "to": "payload.measurements[0].series.amplitude",
+              "tot": "msg"
+          }
+      ],
+      "action": "",
+      "property": "",
+      "from": "",
+      "to": "",
+      "reg": false,
+      "x": 390,
+      "y": 220,
+      "wires": [
+          [
+              "246a3901.c0bc66"
+          ]
+      ]
+  },
+  {
+      "id": "e07e16d1.b50f08",
+      "type": "change",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "rules": [
+          {
+              "t": "set",
+              "p": "payload",
+              "pt": "msg",
+              "to": "Messages to be sent to RabbitMQ",
+              "tot": "str"
+          }
+      ],
+      "action": "",
+      "property": "",
+      "from": "",
+      "to": "",
+      "reg": false,
+      "x": 400,
+      "y": 300,
+      "wires": [
+          [
+              "76e7e94f.81de88"
+          ]
+      ]
+  },
+  {
+      "id": "246a3901.c0bc66",
+      "type": "function",
+      "z": "79f6f23a.4d4f2c",
+      "name": "Create Objects",
+      "func": "const sampleArray=[];\nvar sampleIDArray=msg.sampleIDArray;\nvar frequencyArray=msg.frequencyArray;\nvar amplitudeArray=msg.amplitudeArray;\n\nfor (var j = 0; j < sampleIDArray.length; j++){\n    let object={};\nobject.sampleID=sampleIDArray[j];\nobject.frequency=frequencyArray[j];\nobject.amplitude=amplitudeArray[j];\nsampleArray[j]=object;\n}\nmsg.payload=sampleArray;\nreturn msg;\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 580,
+      "y": 220,
+      "wires": [
+          [
+              "9a455de0.7c795"
+          ]
+      ]
+  },
+  {
+      "id": "9a455de0.7c795",
+      "type": "split",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "splt": "\\n",
+      "spltType": "str",
+      "arraySplt": 1,
+      "arraySpltType": "len",
+      "stream": false,
+      "addname": "",
+      "x": 750,
+      "y": 220,
+      "wires": [
+          [
+              "e33ffad8.0403c8"
+          ]
+      ]
+  },
+  {
+      "id": "9e30a551.550a78",
+      "type": "amqp out",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "routingkey": "qu4lity",
+      "iotype": "4",
+      "ioname": "qu4lity",
+      "server": "68c7511d.15c8d",
+      "x": 1190,
+      "y": 220,
+      "wires": []
+  },
+  {
+      "id": "8fef154b.5e6cb8",
+      "type": "inject",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payload": "",
+      "payloadType": "date",
+      "x": 200,
+      "y": 500,
+      "wires": [
+          [
+              "c0a093a7.590c3"
+          ]
+      ]
+  },
+  {
+      "id": "c0a093a7.590c3",
+      "type": "amqp in",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "topic": "qu4lity",
+      "iotype": "4",
+      "ioname": "qu4lity",
+      "server": "68c7511d.15c8d",
+      "x": 370,
+      "y": 500,
+      "wires": [
+          [
+              "46075d95.58b4a4"
+          ]
+      ]
+  },
+  {
+      "id": "46075d95.58b4a4",
+      "type": "debug",
+      "z": "79f6f23a.4d4f2c",
+      "name": "From Broker",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "true",
+      "targetType": "full",
+      "x": 590,
+      "y": 500,
+      "wires": []
+  },
+  {
+      "id": "e33ffad8.0403c8",
+      "type": "change",
+      "z": "79f6f23a.4d4f2c",
+      "name": "",
+      "rules": [
+          {
+              "t": "set",
+              "p": "payload.timestamp",
+              "pt": "msg",
+              "to": "timestamp",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "payload.device",
+              "pt": "msg",
+              "to": "device",
+              "tot": "msg"
+          },
+          {
+              "t": "set",
+              "p": "payload.source",
+              "pt": "msg",
+              "to": "source",
+              "tot": "msg"
+          }
+      ],
+      "action": "",
+      "property": "",
+      "from": "",
+      "to": "",
+      "reg": false,
+      "x": 940,
+      "y": 220,
+      "wires": [
+          [
+              "9e30a551.550a78",
+              "bca6434b.24d64"
+          ]
+      ]
+  }
+]
