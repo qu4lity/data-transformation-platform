@@ -32,3 +32,17 @@ docker-compose down
 
 ## Testing
 
+@ToDo
+
+## License
+
+This project is distributed under MIT license (see LICENSE).
+
+## Authoring
+
+Developed at Mondragon Unibertsitatea during the participation of the European project [Qu4lity](https://qu4lity-project.eu/).
+
+Main contributors:
+
+* [Alain Perez Riaño](https://www.mondragon.edu/en/bachelor-degree-computer-engineering/lecturers/-/profesor/alain-perez-riano).
+* [Felix Larrinaga Barrenechea](https://www.mondragon.edu/en/bachelor-degree-computer-engineering/lecturers/-/profesor/felix-larrinaga-barrenechea).
