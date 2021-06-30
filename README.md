@@ -4,7 +4,7 @@ QU4LITY Data Transformation Platform from Mondragon Unibertsitatea
 
 ## Security recommendations
 
-All usename and passwords are ```qu4lity``` by default. We strongly recommend changing them before putting it into production. They can be found on ```docker-compose.yml``` as environment variables.
+All usename and passwords are ```qu4lity``` by default. We strongly recommend changing them before putting it into production. They can be found on ```docker-compose.yml``` as environment variables. The username & password for WSO2 Management is also ```qu4lity``` but it is configured in ```wso2/conf/user-mgt.xml``` file.
 
 ## Starting up
 
@@ -32,7 +32,28 @@ docker-compose down
 
 ## Testing
 
-@ToDo
+There are 2 main functionalities implemented in this project:
+
+1. JSON 2 XML converter.
+1. Data Sampling.
+
+### JSON 2 XML converter
+
+This functionality implies a legacy REST endpoint that only accepts XML files. That endpoint is implemented in Node-RED, ```ServiceProviderXML``` tab.
+
+We also have a consumer that only sends JSON content. The consumer is implemented as an example in Node-RED, ```ServiceConsumerJSON```.
+
+The last piece of the implementation is the converter, that converts the JSON content in an XML and sends it to the legacy REST endpoint.
+
+So the consumer calls to WSO2 and sends a JSON object. That endpoint will transform the JSON object to XML and call the legacy endpoint. WSO2 will receive the response and send it back to the consumer.
+
+That way, we have made the legacy endpoint compatible with JSON.
+
+### Data Sampling
+
+This functionality implies a REST endpoint that receives a JSON with multiple values, it splits and sends it in multiple AMQP messages (to a RABBITMQ server). It is developed in Node-RED, ```Sampling Example``` tab.
+
+In order to test it there is another tab in Node-RED (```Sampling Example Consumer```), it will consume the Sampling Example endpoint sending the JSON with multiple values. Then, it will print all the values while they are received over AMQP.
 
 ## License
 
