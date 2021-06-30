@@ -1,5 +1,6 @@
 version: '3'
 services:
+  # Data flow management
   node-red:
     build: ./node-red
     volumes:
@@ -20,11 +21,14 @@ services:
       - RABBITMQ_DEFAULT_PASS=qu4lity
     restart: unless-stopped
 
-#  integrator:
-#    build: ./wso2
-#    image: wso2/wso2ei-integrator:6.5.0
-#    container_name: wso2 
-#    ports:
-#      - 8280:8280
-#      - 8243:8243
-#      - 9443:9443
+  # Integrator
+  wso2:
+    build: ./wso2
+    image: wso2/wso2ei-integrator:6.5.0
+    container_name: wso2
+#    volumes:
+#      - './wso2/conf/carbon.xml:/home/wso2carbon/wso2ei-6.4.0/conf/carbon.xml'
+    ports:
+      - 8280:8280
+      - 8243:8243
+      - 9443:9443
